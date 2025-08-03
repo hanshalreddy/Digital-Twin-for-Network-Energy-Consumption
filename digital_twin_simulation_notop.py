@@ -21,9 +21,7 @@ K1 = 200
 P_0_ru = 200
 RU_CAPACITY = 500
 
-P_0_CU = 200
-K_CU = 100
-DU_CAPACITY = 500
+
 
 power_profiles = {
         "Macro": {"min": 197, "max": 531},
@@ -103,7 +101,7 @@ def ru_power_calc(ru_nodes, active_rus, traffic):
         if ru in active_rus:
             model = ru_nodes[ru]["model"]
             min_p, max_p = POWER_PROFILES[model]["min"], POWER_PROFILES[model]["max"]
-            # norm = min(1, ru_load / RU_CAPACITY)
+           
 
             ru_power[ru] = round(min_p + (max_p - min_p) * ru_load, 2)
         else:
@@ -160,7 +158,7 @@ def plot_ru_power_over_time(timestamps, ru_power_log, ru_nodes, limit=5):
             rounded_hour = round(float(hour))
             tick_labels.append(f"{day} {rounded_hour:02}")
         except:
-            tick_labels.append(timestamps[i])  # fallback if format is unexpected
+            tick_labels.append(timestamps[i]) 
 
     
     plt.xticks(ticks=tick_indices, labels=tick_labels, rotation=45)
@@ -198,7 +196,7 @@ def plot_ru_power_by_type(timestamps, ru_power_log, ru_nodes, ru_type=None, titl
             rounded_hour = round(float(hour))
             tick_labels.append(f"{day} {rounded_hour:02}")
         except:
-            tick_labels.append(timestamps[i])  # fallback if format is unexpected
+            tick_labels.append(timestamps[i])  
 
     
     plt.xticks(ticks=tick_indices, labels=tick_labels, rotation=45)
@@ -278,7 +276,7 @@ def plot_total_network_power(output_dir="highway_output"):
     timestamps = network_base["Time"].tolist()
     
     baseline_power = network_base["Total Power (W)"]
-    #es_power = network_es["Total Power (W)"]
+    
 
     plt.figure(figsize=(12, 6))
     plt.plot(timestamps, baseline_power, label="Baseline (All RUs ON)", linestyle="--", color="blue")
@@ -332,7 +330,7 @@ def plot_ru_breakdown(output_dir="highway_output"):
             rounded_hour = round(float(hour))
             tick_labels.append(f"{day} {rounded_hour:02}")
         except:
-            tick_labels.append(timestamps[i])  # fallback if format is unexpected
+            tick_labels.append(timestamps[i])  
 
     
     plt.xticks(ticks=tick_indices, labels=tick_labels, rotation=45)
@@ -350,15 +348,15 @@ def read_csv(file):
     data = []
     with open(file, 'r') as f:
         reader = csv.reader(f)
-        headers = next(reader)[1:]  # Skip "Timestamp" header
+        headers = next(reader)[1:]  
         for row in reader:
-            if not row:  # Skip empty rows
+            if not row:  
                 continue
-            timestamps.append(row[0])  # Just keep as string: "Mon 0", "Mon 1", etc.
-            # Parse power values (ignore any |OFF suffix)
+            timestamps.append(row[0]) 
+           
             row_data = []
             for v in row[1:]:
-                val = v.split("|")[0]  # Keep only the number
+                val = v.split("|")[0]  
                 row_data.append(float(val))
             data.append(row_data)
     return timestamps, headers, data
@@ -441,7 +439,7 @@ def plot_ee_system_comparison(full_csv, es_csv):
             rounded_hour = round(float(hour))
             tick_labels.append(f"{day} {rounded_hour:02}")
         except:
-            tick_labels.append(timestamps[i])  # fallback if format is unexpected
+            tick_labels.append(timestamps[i])  
 
     
     plt.xticks(ticks=tick_indices, labels=tick_labels, rotation=45)
@@ -477,7 +475,7 @@ def main():
         for ru, info in ru_nodes.items():
 
             if info["model"] == "Micro" and traffic <= 1.1:
-                continue  # Micro RU off
+                continue  
             else:
                 rangeABT = 1.4 # 2.53 - 1.1 = 1.4 range above threshold
                 traffic_range = traffic - 1.1
@@ -492,7 +490,7 @@ def main():
                     index = int(i * step)
                     active_micro_rus.append(micro_ru_ids[index])
 
-            # Add Macro RUs and selected Micro RUs
+           
             active_rus = [ru for ru in ru_nodes if ru_nodes[ru]["model"] == "Macro"]
             active_rus.extend(active_micro_rus)
 
@@ -503,7 +501,7 @@ def main():
             ru_power_log[ru].append(ru_power[ru])
             ru_status_log[ru].append(1 if ru in active_rus else 0)
 
-        # Optional: Print few sample RU statuses
+       
 
         all_rus = list(ru_nodes.keys())
         
@@ -576,15 +574,12 @@ def main():
     #    Combine macro + micro 
     for i in range(len(timestamps)):
         powers_base.append(macro_powers_base[i] + micro_powers_base[i])
-    # powers_base = [[m + mic for m, mic in zip(m_row, mi_row)] 
-    #             for m_row, mi_row in zip(macro_powers_base, micro_powers_base)]
+
     for i in range(len(timestamps)):
         powers_es.append(macro_powers_es[i] + micro_powers_es[i])
-    print(len(powers_es))
+    
 
-    # powers_es = [[m + mic for m, mic in zip(m_row, mi_row)] 
-    #             for m_row, mi_row in zip(macro_powers_es, micro_powers_es)]
-    # Get total traffic in Mbps (scale from your traffic data)
+
     _, traffic_points = read_traffic("shanghai_highway_traffic_data.csv")
     MAX_TRAFFIC = 2.53
     MAX_LOAD_MBPS = 250
